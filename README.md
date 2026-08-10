@@ -2,7 +2,7 @@
 
 ![LLM-as-judge pattern: a candidate LLM generates an answer from a question and retrieved context, then a judge LLM evaluates that answer against the same question and context and produces a pass/fail verdict](docs/llm-judge-pattern.svg)
 
-LLM-as-judge uses a separate (often stronger) LLM to evaluate the output of another LLM against defined criteria, instead of relying solely on human review or static rules. Both the candidate and the judge share the same question and retrieved context, so the judge can check the answer against exactly what the candidate saw. Judging can be a one-time check, as in this demo, or recursive — feeding the verdict back so the candidate revises its answer until it passes.
+LLM-as-judge uses a separate (often stronger) LLM to evaluate the output of another LLM against defined criteria, instead of relying solely on human review or static rules. **Both the candidate and the judge share the same question and retrieved context**, so the judge can check the answer against exactly what the candidate saw. Judging can be a one-time check, as in this demo, or recursive — feeding the verdict back so the candidate revises its answer until it passes.
 
 ## Demo
 
