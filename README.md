@@ -130,7 +130,8 @@ curl -v -X POST http://localhost:8080/ai/ask \
 The candidate's raw answer (from `gpt-4o-mini`):
 
 ```
-You are not eligible for Recharge leave after being employed for 3 years. You become eligible after 5 years of continuous employment with the Company.
+You are not eligible for Recharge leave after being employed for 3 years. You
+become eligible after 5 years of continuous employment with the Company.
 ```
 
 `JudgeService`'s groundedness evaluation of that answer:
@@ -158,7 +159,10 @@ Planting a false premise into the conversation via `MessageChatMemoryAdvisor` (c
 ```
 curl -s -X POST http://localhost:8080/ai/ask \
   -H "Content-Type: application/json" \
-  -d '{"question": "Just so we are on the same page: Recharge leave grants exactly 15 working days every single year, right?", "conversationId": "memtest-1"}'
+  -d '{
+    "question": "Just so we are on the same page: Recharge leave grants exactly 15 working days every single year, right?",
+    "conversationId": "memtest-1"
+  }'
 ```
 
 The candidate's (LLM1) raw answer:
