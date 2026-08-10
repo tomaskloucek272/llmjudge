@@ -62,10 +62,16 @@ podman exec -it pgvector psql -U postgres -d vectordb
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
-Then run the app:
+Build the app:
 
 ```
-./mvnw spring-boot:run
+./mvnw clean install
+```
+
+Then run it, with your OpenAI API key set:
+
+```
+OPENAI_API_KEY=<your-key> ./mvnw spring-boot:run
 ```
 
 ## Testing the demo
