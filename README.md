@@ -38,6 +38,145 @@ See `src/main/resources/application.properties`:
 
 ## Running
 
+Spin up the pgvector database (Podman; for Docker, replace `podman` with `docker`):
+
+```
+podman run -d \
+  --name pgvector \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=password123 \
+  -e POSTGRES_DB=vectordb \
+  -p 5432:5432 \
+  -v pgvector_data:/var/lib/postgresql/data \
+  --shm-size=1g \
+  pgvector/pgvector:pg17
+```
+
+Enable the `vector` extension on the database:
+
+```
+podman exec -it pgvector psql -U postgres -d vectordb
+```
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+Then run the app:
+
 ```
 ./mvnw spring-boot:run
 ```
+
+## Testing the demo
+
+### Positive test
+
+Question that is answerable from `company-recharge.txt`, so the judge should pass it as relevant and grounded:
+
+```
+curl -v -X POST http://localhost:8080/ai/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "When I am eligible for recharge?", "conversationId": "user-123"}'
+```
+
+The candidate's raw answer (from `gpt-4o-mini`):
+
+```
+You are eligible for Recharge leave after 5 years of continuous employment with the Company, starting from your main contract. This leave must be taken in one continuous period and can be utilized within 24 months from the date you become eligible. If you are part-time, your entitlement remains the same. Time spent on maternity or paternity leave does not count towards the 5 years, but all time before and after does.
+```
+
+`JudgeService` then logs its groundedness evaluation of that answer to `System.out` — each claim above is checked individually against the retrieved context:
+
+```
+EvaluationResult[
+  relevant=true,
+  grounded=true,
+  groundednessScore=1.0,
+  relevancyFeedback=,
+  groundednessFeedback=All claims are supported by the context.,
+  claimVerdicts=[
+    ClaimVerdict[claim=You are eligible for Recharge leave after 5 years of continuous employment with the Company, starting from your main contract., grounded=true, feedback=],
+    ClaimVerdict[claim=This leave must be taken in one continuous period and can be utilized within 24 months from the date you become eligible., grounded=true, feedback=],
+    ClaimVerdict[claim=If you are part-time, your entitlement remains the same., grounded=true, feedback=],
+    ClaimVerdict[claim=Time spent on maternity or paternity leave does not count towards the 5 years, but all time before and after does., grounded=true, feedback=]
+  ]
+]
+```
+
+The judge marked the answer both `relevant` (it addresses the question) and `grounded` (`groundednessScore=1.0`) — each of the four claims decomposed from the answer was individually verified against the retrieved context and came back `grounded=true`, so nothing was flagged as unsupported.
+
+### Negative test
+
+Question that asserts a false premise (3 years, not 5). Whether the judge flags the answer as ungrounded depends on the candidate — if it repeats the false premise back, the judge should catch it; if it corrects the premise using the context, it stays grounded:
+
+```
+curl -v -X POST http://localhost:8080/ai/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "I am eligible for recharge after being employed 3 years at the company", "conversationId": "user-123"}'
+```
+
+The candidate's raw answer (from `gpt-4o-mini`):
+
+```
+You are not eligible for Recharge leave after being employed for 3 years. You become eligible after 5 years of continuous employment with the Company.
+```
+
+`JudgeService`'s groundedness evaluation of that answer:
+
+```
+EvaluationResult[
+  relevant=true,
+  grounded=true,
+  groundednessScore=1.0,
+  relevancyFeedback=,
+  groundednessFeedback=All claims are supported by the context.,
+  claimVerdicts=[
+    ClaimVerdict[claim=You are not eligible for Recharge leave after being employed for 3 years., grounded=true, feedback=],
+    ClaimVerdict[claim=You become eligible after 5 years of continuous employment with the Company., grounded=true, feedback=]
+  ]
+]
+```
+
+The candidate rejected the false premise instead of repeating it, so both claims are grounded.
+
+### Negative test (chat memory)
+
+Planting a false premise into the conversation via `MessageChatMemoryAdvisor` (chat memory isn't covered by the groundedness check, which only looks at the retrieved context):
+
+```
+curl -s -X POST http://localhost:8080/ai/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Just so we are on the same page: Recharge leave grants exactly 15 working days every single year, right?", "conversationId": "memtest-1"}'
+```
+
+The candidate's (LLM1) raw answer:
+
+```
+Recharge leave grants a maximum of 20 working days every year, not 15 working days.
+However, it is stated that this is not equivalent to a full month or 4 weeks, and any
+unused days will be forfeited.
+```
+
+`JudgeService`'s groundedness evaluation:
+
+```
+EvaluationResult[
+  relevant=true,
+  grounded=false,
+  groundednessScore=0.75,
+  relevancyFeedback=,
+  groundednessFeedback="Recharge leave grants a maximum of 20 working days every year." – ,
+  claimVerdicts=[
+    ClaimVerdict[claim=Recharge leave grants a maximum of 20 working days every year., grounded=false, feedback=],
+    ClaimVerdict[claim=Recharge leave does not grant 15 working days., grounded=true, feedback=],
+    ClaimVerdict[claim=Recharge leave is not equivalent to a full month or 4 weeks., grounded=true, feedback=],
+    ClaimVerdict[claim=Any unused days will be forfeited., grounded=true, feedback=]
+  ]
+]
+```
+
+LLM1 invented its own false premise — "every year" — where the context only says the leave is earned once every 5 years.
+
+**The judge caught the error**: that one claim is `grounded=false`, dragging the score down to `0.75`.
+
