@@ -89,7 +89,12 @@ curl -v -X POST http://localhost:8080/ai/ask \
 The candidate's raw answer (from `gpt-4o-mini`):
 
 ```
-You are eligible for Recharge leave after 5 years of continuous employment with the Company, starting from your main contract. This leave must be taken in one continuous period and can be utilized within 24 months from the date you become eligible. If you are part-time, your entitlement remains the same. Time spent on maternity or paternity leave does not count towards the 5 years, but all time before and after does.
+You are eligible for Recharge leave after 5 years of continuous employment with
+the Company, starting from your main contract. This leave must be taken in one
+continuous period and can be utilized within 24 months from the date you become
+eligible. If you are part-time, your entitlement remains the same. Time spent on
+maternity or paternity leave does not count towards the 5 years, but all time
+before and after does.
 ```
 
 `JudgeService` then logs its groundedness evaluation of that answer to `System.out` — each claim above is checked individually against the retrieved context:
@@ -146,7 +151,7 @@ EvaluationResult[
 
 The candidate rejected the false premise instead of repeating it, so both claims are grounded.
 
-### Negative test (chat memory)
+### Negative test (confusing LLM1 with a leading question)
 
 Planting a false premise into the conversation via `MessageChatMemoryAdvisor` (chat memory isn't covered by the groundedness check, which only looks at the retrieved context):
 
@@ -182,7 +187,7 @@ EvaluationResult[
 ]
 ```
 
-LLM1 invented its own false premise — "every year" — where the context only says the leave is earned once every 5 years.
+> ⚠️ **LLM1 invented its own false premise — "every year" — where the context only says the leave is earned once every 5 years.**
 
 **The judge caught the error**: that one claim is `grounded=false`, dragging the score down to `0.75`.
 
