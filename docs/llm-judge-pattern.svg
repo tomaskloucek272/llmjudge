@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 380" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="820" height="380" fill="#ffffff"/>
+
+  <!-- Context -->
+  <rect x="30" y="150" width="150" height="80" rx="10" fill="#eef2ff" stroke="#4338ca" stroke-width="1.5"/>
+  <text x="105" y="185" text-anchor="middle" font-size="14" font-weight="600" fill="#312e81">Retrieved</text>
+  <text x="105" y="203" text-anchor="middle" font-size="14" font-weight="600" fill="#312e81">context</text>
+
+  <!-- Question -->
+  <rect x="30" y="30" width="150" height="70" rx="10" fill="#f1f5f9" stroke="#334155" stroke-width="1.5"/>
+  <text x="105" y="60" text-anchor="middle" font-size="14" font-weight="600" fill="#0f172a">Question</text>
+  <text x="105" y="78" text-anchor="middle" font-size="14" font-weight="600" fill="#0f172a">(input)</text>
+
+  <!-- Candidate LLM -->
+  <rect x="290" y="30" width="190" height="90" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="385" y="58" text-anchor="middle" font-size="14" font-weight="700" fill="#1e3a8a">Candidate LLM</text>
+  <text x="385" y="78" text-anchor="middle" font-size="12" fill="#1e3a8a">generates the answer</text>
+  <text x="385" y="96" text-anchor="middle" font-size="12" fill="#1e3a8a">(e.g. gpt-4o-mini)</text>
+
+  <!-- Answer -->
+  <rect x="580" y="40" width="180" height="70" rx="10" fill="#f1f5f9" stroke="#334155" stroke-width="1.5"/>
+  <text x="670" y="70" text-anchor="middle" font-size="14" font-weight="600" fill="#0f172a">Answer</text>
+  <text x="670" y="88" text-anchor="middle" font-size="12" fill="#334155">(candidate output)</text>
+
+  <!-- Judge LLM -->
+  <rect x="290" y="230" width="190" height="100" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="385" y="260" text-anchor="middle" font-size="14" font-weight="700" fill="#7f1d1d">Judge LLM</text>
+  <text x="385" y="280" text-anchor="middle" font-size="12" fill="#7f1d1d">evaluates the answer</text>
+  <text x="385" y="298" text-anchor="middle" font-size="12" fill="#7f1d1d">against the question + context</text>
+  <text x="385" y="316" text-anchor="middle" font-size="12" fill="#7f1d1d">(e.g. gpt-4o, a stronger model)</text>
+
+  <!-- Verdict -->
+  <rect x="580" y="240" width="180" height="80" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="670" y="270" text-anchor="middle" font-size="14" font-weight="700" fill="#14532d">Verdict</text>
+  <text x="670" y="290" text-anchor="middle" font-size="12" fill="#14532d">relevancy + groundedness</text>
+  <text x="670" y="306" text-anchor="middle" font-size="12" fill="#14532d">pass / fail</text>
+
+  <!-- Arrows -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Question -> Candidate LLM -->
+  <line x1="180" y1="75" x2="288" y2="75" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Candidate LLM -> Answer -->
+  <line x1="480" y1="75" x2="578" y2="75" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Context -> Candidate LLM -->
+  <line x1="180" y1="190" x2="250" y2="190" stroke="#4338ca" stroke-width="1.5"/>
+  <line x1="250" y1="190" x2="250" y2="100" stroke="#4338ca" stroke-width="1.5"/>
+  <line x1="250" y1="100" x2="288" y2="100" stroke="#4338ca" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Context -> Judge LLM -->
+  <line x1="180" y1="210" x2="250" y2="210" stroke="#4338ca" stroke-width="1.5"/>
+  <line x1="250" y1="210" x2="250" y2="270" stroke="#4338ca" stroke-width="1.5"/>
+  <line x1="250" y1="270" x2="288" y2="270" stroke="#4338ca" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Answer -> Judge LLM -->
+  <line x1="670" y1="110" x2="670" y2="170" stroke="#334155" stroke-width="1.5"/>
+  <line x1="670" y1="170" x2="480" y2="170" stroke="#334155" stroke-width="1.5"/>
+  <line x1="480" y1="170" x2="480" y2="270" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Judge LLM -> Verdict -->
+  <line x1="480" y1="290" x2="578" y2="290" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+</svg>

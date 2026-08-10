@@ -1,4 +1,8 @@
-# LLM Judge Pattern
+# LLM as Judge Pattern
+
+![LLM-as-judge pattern: a candidate LLM generates an answer from a question and retrieved context, then a judge LLM evaluates that answer against the same question and context and produces a pass/fail verdict](docs/llm-judge-pattern.svg)
+
+## Demo
 
 Spring AI RAG demo that answers questions about a company recharge-leave policy and evaluates its own answers with a separate LLM judge (relevancy + groundedness against the retrieved context).
 
