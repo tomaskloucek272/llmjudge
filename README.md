@@ -180,3 +180,21 @@ LLM1 invented its own false premise — "every year" — where the context only 
 
 **The judge caught the error**: that one claim is `grounded=false`, dragging the score down to `0.75`.
 
+## Summary
+
+This demo shows why verification by a separate, stronger model matters: LLM1
+answered fluently and mostly correctly, but still slipped in a detail
+("every year") that wasn't actually in the source document — and it did so
+confidently, with no signal to the caller that anything was wrong.
+
+A single main-line LLM has no built-in way to catch its own mistakes; it
+needs an independent check. Here, LLM2 (the judge) re-examines the same
+question and context, decomposes the answer into individual claims, and
+verifies each one — catching exactly the one claim that wasn't grounded
+while leaving the correct ones alone.
+
+That's the core value of the LLM-as-judge pattern: it turns "trust the
+model's output" into "verify the model's output," which is also the
+direction the EU AI Act's accuracy and validation requirements (Art. 15, 17)
+push toward for high-risk systems.
+
